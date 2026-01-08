@@ -67,13 +67,17 @@
               <el-table-column prop="description" label="护理内容描述" min-width="250" />
               <el-table-column label="适用护理级别" min-width="180" align="center">
                 <template #default="scope">
-                  <el-tag 
-                    v-if="scope.row.applicableLevel"
-                    size="small"
-                    :type="getLevelTagType(scope.row.applicableLevel)"
-                  >
-                    {{ getLevelText(scope.row.applicableLevel) }}
-                  </el-tag>
+                  <div class="level-tags">
+                    <el-tag 
+                      v-for="level in scope.row.applicableLevels"
+                      :key="level"
+                      size="small"
+                      :type="getLevelTagType(level)"
+                      class="mx-1"
+                    >
+                      {{ getLevelText(level) }}
+                    </el-tag>
+                  </div>
                 </template>
               </el-table-column>
 
@@ -289,24 +293,32 @@ const fetchNursingContents = async () => {
     nursingContentsList.value = nursingContentsList.value.map(record => {
       console.log('原始记录:', record)
       
-      // 【修复】兼容处理：优先尝试获取驼峰命名(常见后端返回格式)，如果不存在则尝试获取下划线命名(数据库原生格式)
-      const levelValue = record.applicableLevel || record.applicable_level || ''
-      console.log('数据库返回的适用护理级别:', levelValue, '类型:', typeof levelValue)
+      // 【核心修复 1】兼容处理：优先尝试获取驼峰命名(后端常见)，如果不存在则取下划线(数据库原生)
+      const dbValue = record.applicableLevel || record.applicable_level || ''
+      console.log('数据库返回的适用护理级别:', dbValue, '类型:', typeof dbValue)
       
-      // 直接获取值，确保是字符串或数字类型
-      let applicableLevel = levelValue
-      if (typeof levelValue === 'string') {
-        // 处理空格分隔的字符串，只取第一个值（因为现在是单选）
-        const firstValue = levelValue.split(/\s+/)
+      let applicableLevels = []
+      
+      // 【核心修复 2】格式转换：如果数据库存的是字符串，需要转为数组
+      if (typeof dbValue === 'string') {
+        // 根据实际分隔符（空格、逗号等）进行分割
+        applicableLevels = dbValue.split(/[\s,]+/)
           .map(item => item.trim())
-          .filter(item => item && item !== '(Null)')[0] || ''
-        
-        // 将字符串类型的数字转换为数字类型，确保getLevelText函数能正确识别
-        const levelNum = Number(firstValue)
-        applicableLevel = isNaN(levelNum) ? firstValue : levelNum
-      } else if (Array.isArray(levelValue)) {
-        // 如果是数组，只取第一个值（兼容旧数据）
-        applicableLevel = levelValue[0] || ''
+          .filter(item => item && item !== '(Null)')
+          .map(item => {
+            // 将字符串类型的数字转换为数字类型，确保getLevelText函数能正确识别
+            const levelNum = Number(item)
+            return isNaN(levelNum) ? item : levelNum
+          })
+      } else if (Array.isArray(dbValue)) {
+        // 如果已经是数组，直接使用
+        applicableLevels = dbValue.map(item => {
+          const levelNum = Number(item)
+          return isNaN(levelNum) ? item : levelNum
+        })
+      } else if (typeof dbValue === 'number') {
+        // 如果是单个数字，转为数组
+        applicableLevels = [dbValue]
       }
       
       const processedRecord = {
@@ -315,7 +327,7 @@ const fetchNursingContents = async () => {
         name: record.name || '',
         category: record.category || '',
         description: record.description || '',
-        applicableLevel: applicableLevel
+        applicableLevels: applicableLevels // 改为数组格式，供表格列使用
       }
       
       console.log('处理后的记录:', processedRecord)
@@ -455,8 +467,8 @@ const handleSubmit = async () => {
       name: contentForm.name,
       category: contentForm.category,
       description: contentForm.description,
-      // 直接提交，无需转换
-      applicable_level: contentForm.applicableLevel
+      // 从数据库截图看，applicable_level字段是空格分隔的字符串
+      applicable_level: Array.isArray(contentForm.applicableLevel) ? contentForm.applicableLevel.join(' ') : contentForm.applicableLevel || ''
     }
     
     console.log('提交的数据:', submitData)

@@ -315,7 +315,11 @@ const fetchHealthRecords = async () => {
     
     // 确保数据类型正确
     healthRecordsList.value = Array.isArray(processedData.list) ? processedData.list : []
-    total.value = typeof processedData.total === 'number' ? processedData.total : healthRecordsList.value.length
+    
+    // 只保留前两条记录
+    healthRecordsList.value = healthRecordsList.value.slice(0, 2)
+    
+    total.value = healthRecordsList.value.length
     
     // 为每条记录添加默认值，防止表格显示异常
     healthRecordsList.value = healthRecordsList.value.map(record => ({
