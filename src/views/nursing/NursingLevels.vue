@@ -493,8 +493,11 @@ const formatDate = (dateString) => {
   font-size: 36px;
   font-weight: 800;
   margin: 0 0 12px 0;
-  color: #333333;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #303133;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   transition: all 0.3s ease;
   letter-spacing: -0.5px;
 }

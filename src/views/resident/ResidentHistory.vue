@@ -245,10 +245,76 @@ const tableRowClassName = ({ row, rowIndex }) => {
 
 .search-input {
   width: 250px;
+  transition: all 0.3s ease;
 }
 
 .date-picker {
   width: 350px;
+}
+
+/* 输入框样式美化 */
+:deep(.el-input) {
+  --primary-color: #409eff;
+  --border-radius: 8px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: var(--border-radius);
+  border: 1px solid #dcdfe6;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+:deep(.el-input__wrapper:hover) {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  outline: none;
+}
+
+:deep(.el-input__inner) {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #303133;
+  padding: 12px 14px;
+}
+
+:deep(.el-input__prefix) {
+  left: 14px;
+  color: #909399;
+  transition: color 0.3s ease;
+}
+
+:deep(.el-input__wrapper.is-focus .el-input__prefix),
+:deep(.el-input__wrapper:hover .el-input__prefix) {
+  color: var(--primary-color);
+}
+
+:deep(.el-input__suffix-inner) {
+  margin-right: 8px;
+}
+
+:deep(.el-icon-user),
+:deep(.el-icon-location) {
+  font-size: 16px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .search-input,
+  .date-picker {
+    width: 100%;
+  }
+  
+  .search-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .table-container {

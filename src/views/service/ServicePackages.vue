@@ -48,6 +48,7 @@
                 v-for="pkg in servicePackagesList" 
                 :key="pkg.id"
                 class="package-card"
+                :class="{ 'disabled-card': pkg.status === '禁用' }"
               >
                 <!-- 卡片头部 -->
                 <div class="package-card-header">
@@ -321,16 +322,9 @@ const fetchServicePackages = async () => {
       // 获取原始数据
       let packages = response.data.data.list || []
       
-      // 定义排序规则：基础 -> 医疗照护 -> 至尊康养
-      const levelOrder = {
-        '基础': 1,
-        '医疗照护': 2,
-        '至尊康养': 3
-      }
-      
-      // 按照级别排序
+      // 按照ID从小到大排序
       servicePackagesList.value = packages.sort((a, b) => {
-        return (levelOrder[a.level] || 99) - (levelOrder[b.level] || 99)
+        return a.id - b.id
       })
       
       total.value = response.data.data.total || 0
@@ -884,5 +878,37 @@ const handleDelete = (id) => {
   .package-card {
     padding: 16px;
   }
+}
+
+/* === 禁用状态样式 (加深版) === */
+.disabled-card {
+  /* 背景色加深：从 #f5f7fa 改为 #e0e2e5，视觉上会是很明显的灰色 */
+  background-color: #e0e2e5 !important;
+  /* 边框颜色也加深一点，与背景融合 */
+  border-color: #c8c9cc !important;
+  /* 移除阴影，让卡片看起来"塌陷"下去 */
+  box-shadow: none !important;
+}
+
+/* 禁用时，卡片内所有文本强制变深灰 */
+.disabled-card .package-name,
+.disabled-card .package-price,
+.disabled-card .description-text,
+.disabled-card .features-content,
+.disabled-card .page-subtitle,
+.disabled-card .el-icon {
+  color: #73767a !important; /* 文字颜色也加深一点，保证在深灰背景下的对比度 */
+}
+
+/* 禁用时，描述区域的白色背景也变暗，或者直接透明 */
+.disabled-card .description-text,
+.disabled-card .features-content {
+  background-color: rgba(255, 255, 255, 0.3) !important; /* 半透明白，透出底下的灰 */
+}
+
+/* 禁用状态下鼠标放上去不要有浮起效果 */
+.disabled-card:hover {
+  transform: none !important;
+  border-color: #c8c9cc !important;
 }
 </style>
