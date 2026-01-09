@@ -55,7 +55,7 @@ const routes = [
       {
         path: '/health-monitoring/visualization',
         name: 'HealthMonitoringVisualization',
-        component: () => import('@/views/resident/HealthMonitoringVisualization.vue')
+        component: () => import('@/views/HealthMonitoringDashboard.vue')
       },
       {
         path: '/health-monitoring',
@@ -99,7 +99,7 @@ const routes = [
       {
         path: '/monitor',
         name: 'Monitor',
-        component: () => import('@/views/MonitorView.vue')
+        component: () => import('@/views/HealthMonitoringDashboard.vue')
       }
     ]
   }
