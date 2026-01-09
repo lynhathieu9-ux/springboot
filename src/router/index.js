@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
+  /* ================= 登录 ================= */
   {
     path: '/',
     redirect: '/login'
@@ -11,10 +12,13 @@ const routes = [
     component: () => import('@/views/Login.vue'),
     meta: { requiresAuth: false }
   },
+
+  /* ================= 管理端 ================= */
   {
     path: '/',
     component: () => import('@/views/Layout.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: 'admin' },
+    redirect: '/rooms',
     children: [
       // 房间/床位管理
       {
@@ -102,6 +106,42 @@ const routes = [
         component: () => import('@/views/HealthMonitoringDashboard.vue')
       }
     ]
+  },
+
+  /* ================= 老人端 ================= */
+  {
+    path: '/elder',
+    component: () => import('@/views/elder/ElderLayout.vue'),
+    meta: { requiresAuth: true, role: 'elder' },
+    redirect: '/elder/home',
+    children: [
+      { path: 'home', component: () => import('@/views/elder/ElderHome.vue') },
+      { path: 'profile', component: () => import('@/views/elder/Profile.vue') },
+      { path: 'diet-calendar', component: () => import('@/views/elder/DietCalendar.vue') },
+
+      { path: 'health-monitoring/daily', component: () => import('@/views/elder/HealthMonitoringDaily.vue') },
+      { path: 'health-monitoring', redirect: 'health-monitoring/daily' },
+
+      { path: 'nursing/levels', component: () => import('@/views/elder/NursingLevels.vue') },
+      { path: 'nursing/contents', component: () => import('@/views/elder/NursingContents.vue') },
+      { path: 'nursing/records', component: () => import('@/views/elder/NursingRecords.vue') },
+
+      { path: 'service/packages', component: () => import('@/views/elder/ServicePackages.vue') },
+      { path: 'service/purchase', component: () => import('@/views/elder/PurchaseRecords.vue') },
+
+      /* ⭐ AI 聊天页面（重点） */
+      {
+        path: 'ai-chat',
+        name: 'ElderAiChat',
+        component: () => import('@/views/elder/AiChat.vue')
+      }
+    ]
+  },
+
+  /* ================= 兜底 ================= */
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
@@ -110,26 +150,37 @@ const router = createRouter({
   routes
 })
 
-// 路由导航守卫
+/* ================= 路由守卫 ================= */
 router.beforeEach((to, from, next) => {
   console.log('路由跳转:', from.path, '->', to.path)
   
-  // 检查路由是否需要认证
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  
-  // 获取token
+  // 获取token和用户类型
   const token = localStorage.getItem('token')
-  
+  const userType = localStorage.getItem('userType') // admin / elder
+  const requiresAuth = to.matched.some(r => r.meta.requiresAuth)
+
+  // 未登录但访问受保护页面
   if (requiresAuth && !token) {
     // 需要认证但没有token，重定向到登录页面
     next('/login')
-  } else if (to.path === '/login' && token) {
-    // 已登录但访问登录页面，重定向到首页
-    next('/rooms')
-  } else {
-    // 正常跳转
-    next()
+    return
   }
+
+  // 已登录访问登录页
+  if (to.path === '/login' && token) {
+    return userType === 'elder'
+      ? next('/elder/home')
+      : next('/rooms')
+  }
+
+  // 角色校验
+  const routeRole = to.matched.find(r => r.meta.role)?.meta.role
+  if (routeRole && routeRole !== userType) {
+    return next('/login')
+  }
+
+  // 正常跳转
+  next()
 })
 
 export default router
