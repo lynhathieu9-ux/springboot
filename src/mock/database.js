@@ -24,18 +24,21 @@ export const getActiveResidentsData = () => {
       risk_level: 'medium',
     },
     // 为了大屏效果，模拟更多数据
-    { id: 99, name: '张大爷', age: 82, gender: '男', room_number: '101', bed_number: '101-A', risk_level: 'low' },
-    { id: 100, name: '刘奶奶', age: 78, gender: '女', room_number: '102', bed_number: '102-B', risk_level: 'high' }
+    { id: 99, name: '张大军', age: 82, gender: '男', room_number: '101', bed_number: '101-A', risk_level: 'low' },
+    { id: 100, name: '刘秀芬', age: 78, gender: '女', room_number: '102', bed_number: '102-B', risk_level: 'high' }
   ];
 
   // 模拟关联 health_blood_pressure, health_blood_oxygen 等表获取最新数据
   return residents.map(r => ({
     ...r,
     latestHealth: {
-      bp: { systolic: 120 + Math.floor(Math.random()*30), diastolic: 70 + Math.floor(Math.random()*20) }, // 血压
-      sugar: { level: 5.4 + Math.random()*2, status: '空腹' }, // 血糖
+      bp: { 
+        systolic: 120 + Math.floor(Math.random()*30), 
+        diastolic: 70 + Math.floor(Math.random()*20) 
+      }, // 血压
+      sugar: { level: parseFloat((5.4 + Math.random()*2).toFixed(1)), status: '空腹' }, // 血糖
       oxygen: 95 + Math.floor(Math.random()*4), // 血氧
-      temp: 36.5 + Math.random(), // 体温
+      temp: parseFloat((36.5 + Math.random()).toFixed(1)), // 体温
       hr: 70 + Math.floor(Math.random()*20), // 心率
       sleep: { duration: 7.5, quality: '良' } // 睡眠
     }
@@ -58,9 +61,9 @@ export const generateHistoricalData = (days = 7) => {
         systolic: 120 + Math.floor(Math.random()*30),
         diastolic: 70 + Math.floor(Math.random()*20)
       },
-      sugar: 5.4 + Math.random()*2,
+      sugar: parseFloat((5.4 + Math.random()*2).toFixed(1)),
       oxygen: 95 + Math.floor(Math.random()*4),
-      temp: 36.5 + Math.random(),
+      temp: parseFloat((36.5 + Math.random()).toFixed(1)),
       hr: 70 + Math.floor(Math.random()*20)
     });
   }
@@ -75,12 +78,12 @@ export const generateRealTimeData = (baseData) => {
     latestHealth: {
       ...baseData.latestHealth,
       bp: {
-        systolic: Math.max(90, Math.min(180, baseData.latestHealth.bp.systolic + (Math.random() - 0.5) * 10)),
-        diastolic: Math.max(60, Math.min(120, baseData.latestHealth.bp.diastolic + (Math.random() - 0.5) * 8))
+        systolic: Math.round(Math.max(90, Math.min(180, baseData.latestHealth.bp.systolic + (Math.random() - 0.5) * 10))),
+        diastolic: Math.round(Math.max(60, Math.min(120, baseData.latestHealth.bp.diastolic + (Math.random() - 0.5) * 8)))
       },
-      oxygen: Math.max(90, Math.min(100, baseData.latestHealth.oxygen + (Math.random() - 0.5) * 2)),
-      temp: Math.max(36.0, Math.min(37.5, baseData.latestHealth.temp + (Math.random() - 0.5) * 0.3)),
-      hr: Math.max(60, Math.min(100, baseData.latestHealth.hr + (Math.random() - 0.5) * 10))
+      oxygen: parseFloat(Math.max(90, Math.min(100, baseData.latestHealth.oxygen + (Math.random() - 0.5) * 2)).toFixed(1)),
+      temp: parseFloat(Math.max(36.0, Math.min(37.5, baseData.latestHealth.temp + (Math.random() - 0.5) * 0.3)).toFixed(1)),
+      hr: Math.round(Math.max(60, Math.min(100, baseData.latestHealth.hr + (Math.random() - 0.5) * 10)))
     }
   };
 };

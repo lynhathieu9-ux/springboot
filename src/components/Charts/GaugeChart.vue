@@ -119,7 +119,9 @@ const updateChart = () => {
         },
         detail: {
           valueAnimation: true,
-          formatter: `{value}${props.unit}`,
+          formatter: function(params) {
+            return params.value.toFixed(1) + props.unit;
+          },
           fontSize: 30,
           offsetCenter: [0, '0%'],
           color: '#333'

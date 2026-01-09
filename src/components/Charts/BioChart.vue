@@ -131,7 +131,8 @@ const updateChart = () => {
         let result = params[0].name + '<br/>';
         params.forEach(param => {
           const config = Object.values(metricConfig).find(c => c.name === param.seriesName);
-          result += `${param.marker}${param.seriesName}: ${param.value}${config?.unit || ''}<br/>`;
+          const formattedValue = typeof param.value === 'number' ? param.value.toFixed(1) : param.value;
+          result += `${param.marker}${param.seriesName}: ${formattedValue}${config?.unit || ''}<br/>`;
         });
         return result;
       }

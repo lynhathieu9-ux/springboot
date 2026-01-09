@@ -326,18 +326,6 @@ const calculateAgeFromIdCard = (idCard) => {
   }
 }
 
-// 监听身份证号变化，自动计算年龄
-watch(
-  () => residentForm.idCard,
-  (newIdCard) => {
-    if (newIdCard) {
-      residentForm.age = calculateAgeFromIdCard(newIdCard)
-    } else {
-      residentForm.age = ''
-    }
-  }
-)
-
 // 搜索和筛选参数
 const searchParams = reactive({
   name: '',
@@ -390,6 +378,18 @@ const residentForm = reactive({
     healthNotes: ''
   }
 })
+
+// 监听身份证号变化，自动计算年龄
+watch(
+  () => residentForm.idCard,
+  (newIdCard) => {
+    if (newIdCard) {
+      residentForm.age = calculateAgeFromIdCard(newIdCard)
+    } else {
+      residentForm.age = ''
+    }
+  }
+)
 
 // 表单验证规则
 const residentRules = {
@@ -649,24 +649,25 @@ const resetForm = () => {
 
 // 提交表单
 const handleSubmit = async () => {
+  let successMessage = isEditMode.value ? '编辑成功' : '新增成功'
+  let errorMessage = isEditMode.value ? '编辑失败' : '新增失败'
+  
   try {
     // 表单验证
     await residentFormRef.value.validate()
     
+    console.log('提交的表单数据:', JSON.stringify(residentForm, null, 2))
+    
     let response
-    let successMessage
-    let errorMessage
     
     if (isEditMode.value) {
       // 编辑入住登记
       response = await updateResident(residentForm)
-      successMessage = '编辑成功'
-      errorMessage = '编辑失败'
+      console.log('编辑响应:', response)
     } else {
       // 添加入住登记
       response = await addResident(residentForm)
-      successMessage = '新增成功'
-      errorMessage = '新增失败'
+      console.log('新增响应:', response)
     }
     
     if (response.data.success) {
@@ -678,18 +679,29 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('提交失败:', error)
+    console.error('错误类型:', typeof error)
+    console.error('错误完整信息:', JSON.stringify(error, null, 2))
+    
     if (error.name === 'Error' && error.message === '表单验证失败') {
       // 表单验证失败，不显示额外提示
       return
     }
     
+    let errorText = errorMessage
     if (error.response) {
-      ElMessage.error(`${errorMessage}: ${error.response.status} ${error.response.statusText}`)
+      errorText += `: ${error.response.status} ${error.response.statusText}`
+      if (error.response.data && error.response.data.message) {
+        errorText += ` - ${error.response.data.message}`
+      }
     } else if (error.request) {
-      ElMessage.error(`${errorMessage}: 服务器无响应`)
+      errorText += ': 服务器无响应'
+    } else if (error.message) {
+      errorText += `: ${error.message}`
     } else {
-      ElMessage.error(`${errorMessage}: ${error.message}`)
+      errorText += ': 未知错误'
     }
+    
+    ElMessage.error(errorText)
   }
 }
 

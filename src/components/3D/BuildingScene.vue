@@ -4,7 +4,7 @@
     <div class="scene-controls">
       <el-button size="small" @click="toggleFloor">
         <el-icon><SwitchButton /></el-icon>
-        {{ currentFloor === 1 ? '切换到3楼' : '切换到1楼' }}
+        {{ currentFloor === 1 ? '切换到2楼' : currentFloor === 2 ? '切换到3楼' : '切换到1楼' }}
       </el-button>
       <el-button size="small" @click="resetCamera">
         <el-icon><RefreshRight /></el-icon>
@@ -106,6 +106,11 @@ const createFloors = () => {
   scene.add(floor1);
   floors.push(floor1);
 
+  // 2楼
+  const floor2 = createFloor(2, '2楼', 0xFFB6C1);
+  scene.add(floor2);
+  floors.push(floor2);
+
   // 3楼
   const floor3 = createFloor(3, '3楼', 0x98FB98);
   scene.add(floor3);
@@ -116,116 +121,119 @@ const createFloors = () => {
 };
 
 // 创建单个楼层
-const createFloor = (height, label, color) => {
-  const floorGroup = new THREE.Group();
+  const createFloor = (height, label, color) => {
+    const floorGroup = new THREE.Group();
 
-  // 楼层平面
-  const floorGeometry = new THREE.PlaneGeometry(15, 15);
-  const floorMaterial = new THREE.MeshStandardMaterial({ 
-    color: color, 
-    opacity: 0.8, 
-    transparent: true,
-    side: THREE.DoubleSide
-  });
-  const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = height;
-  floor.receiveShadow = true;
-  floorGroup.add(floor);
+    // 楼层平面
+    const floorGeometry = new THREE.PlaneGeometry(15, 15);
+    const floorMaterial = new THREE.MeshStandardMaterial({ 
+      color: color, 
+      opacity: 0.8, 
+      transparent: true,
+      side: THREE.DoubleSide
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = height;
+    floor.receiveShadow = true;
+    floorGroup.add(floor);
 
-  // 楼层标签
-  const labelCanvas = document.createElement('canvas');
-  const ctx = labelCanvas.getContext('2d');
-  labelCanvas.width = 256;
-  labelCanvas.height = 64;
-  
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillRect(0, 0, labelCanvas.width, labelCanvas.height);
-  ctx.fillStyle = '#333';
-  ctx.font = 'bold 32px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(label, labelCanvas.width / 2, labelCanvas.height / 2 + 10);
-  
-  const labelTexture = new THREE.CanvasTexture(labelCanvas);
-  const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture });
-  const labelSprite = new THREE.Sprite(labelMaterial);
-  labelSprite.position.set(0, height + 0.1, 0);
-  labelSprite.scale.set(3, 0.75, 1);
-  floorGroup.add(labelSprite);
+    // 楼层标签
+    const labelCanvas = document.createElement('canvas');
+    const ctx = labelCanvas.getContext('2d');
+    labelCanvas.width = 256;
+    labelCanvas.height = 64;
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(0, 0, labelCanvas.width, labelCanvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, labelCanvas.width / 2, labelCanvas.height / 2 + 10);
+    
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture });
+    const labelSprite = new THREE.Sprite(labelMaterial);
+    labelSprite.position.set(0, height + 0.1, 0);
+    labelSprite.scale.set(3, 0.75, 1);
+    floorGroup.add(labelSprite);
 
-  // 创建房间
-  const rooms = [
-    { x: -5, z: -5, width: 4, depth: 4, number: '101' },
-    { x: 1, z: -5, width: 4, depth: 4, number: '102' },
-    { x: -5, z: 1, width: 4, depth: 4, number: '103' },
-    { x: 1, z: 1, width: 4, depth: 4, number: '104' }
-  ];
+    // 根据楼层高度计算楼层号：height为0是1楼，height为2是2楼，height为3是3楼
+    const floorNumber = height === 0 ? 1 : height === 2 ? 2 : 3;
+    
+    // 创建房间，根据楼层号动态生成房间号
+    const rooms = [
+      { x: -5, z: -5, width: 4, depth: 4, number: `${floorNumber}01` },
+      { x: 1, z: -5, width: 4, depth: 4, number: `${floorNumber}02` },
+      { x: -5, z: 1, width: 4, depth: 4, number: `${floorNumber}03` },
+      { x: 1, z: 1, width: 4, depth: 4, number: `${floorNumber}04` }
+    ];
 
-  rooms.forEach(room => {
-    const roomGroup = new THREE.Group();
-    
-    // 房间墙壁
-    const wallHeight = 2.5;
-    const wallThickness = 0.1;
-    
-    // 后墙
-    const backWall = createWall(
-      room.x + room.width / 2, 
-      height + wallHeight / 2, 
-      room.z - room.depth / 2, 
-      room.width, 
-      wallHeight, 
-      wallThickness
-    );
-    roomGroup.add(backWall);
-    
-    // 左墙
-    const leftWall = createWall(
-      room.x - room.width / 2, 
-      height + wallHeight / 2, 
-      room.z, 
-      wallThickness, 
-      wallHeight, 
-      room.depth
-    );
-    roomGroup.add(leftWall);
-    
-    // 右墙
-    const rightWall = createWall(
-      room.x + room.width / 2, 
-      height + wallHeight / 2, 
-      room.z, 
-      wallThickness, 
-      wallHeight, 
-      room.depth
-    );
-    roomGroup.add(rightWall);
-    
-    // 房间号码
-    const roomNumberCanvas = document.createElement('canvas');
-    const roomNumberCtx = roomNumberCanvas.getContext('2d');
-    roomNumberCanvas.width = 128;
-    roomNumberCanvas.height = 64;
-    
-    roomNumberCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    roomNumberCtx.fillRect(0, 0, roomNumberCanvas.width, roomNumberCanvas.height);
-    roomNumberCtx.fillStyle = '#333';
-    roomNumberCtx.font = 'bold 24px Arial';
-    roomNumberCtx.textAlign = 'center';
-    roomNumberCtx.fillText(room.number, roomNumberCanvas.width / 2, roomNumberCanvas.height / 2 + 8);
-    
-    const roomNumberTexture = new THREE.CanvasTexture(roomNumberCanvas);
-    const roomNumberMaterial = new THREE.SpriteMaterial({ map: roomNumberTexture });
-    const roomNumberSprite = new THREE.Sprite(roomNumberMaterial);
-    roomNumberSprite.position.set(room.x, height + 2, room.z - room.depth / 2 - 0.5);
-    roomNumberSprite.scale.set(1, 0.5, 1);
-    roomGroup.add(roomNumberSprite);
-    
-    floorGroup.add(roomGroup);
-  });
+    rooms.forEach(room => {
+      const roomGroup = new THREE.Group();
+      
+      // 房间墙壁
+      const wallHeight = 2.5;
+      const wallThickness = 0.1;
+      
+      // 后墙
+      const backWall = createWall(
+        room.x + room.width / 2, 
+        height + wallHeight / 2, 
+        room.z - room.depth / 2, 
+        room.width, 
+        wallHeight, 
+        wallThickness
+      );
+      roomGroup.add(backWall);
+      
+      // 左墙
+      const leftWall = createWall(
+        room.x - room.width / 2, 
+        height + wallHeight / 2, 
+        room.z, 
+        wallThickness, 
+        wallHeight, 
+        room.depth
+      );
+      roomGroup.add(leftWall);
+      
+      // 右墙
+      const rightWall = createWall(
+        room.x + room.width / 2, 
+        height + wallHeight / 2, 
+        room.z, 
+        wallThickness, 
+        wallHeight, 
+        room.depth
+      );
+      roomGroup.add(rightWall);
+      
+      // 房间号码
+      const roomNumberCanvas = document.createElement('canvas');
+      const roomNumberCtx = roomNumberCanvas.getContext('2d');
+      roomNumberCanvas.width = 128;
+      roomNumberCanvas.height = 64;
+      
+      roomNumberCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      roomNumberCtx.fillRect(0, 0, roomNumberCanvas.width, roomNumberCanvas.height);
+      roomNumberCtx.fillStyle = '#333';
+      roomNumberCtx.font = 'bold 24px Arial';
+      roomNumberCtx.textAlign = 'center';
+      roomNumberCtx.fillText(room.number, roomNumberCanvas.width / 2, roomNumberCanvas.height / 2 + 8);
+      
+      const roomNumberTexture = new THREE.CanvasTexture(roomNumberCanvas);
+      const roomNumberMaterial = new THREE.SpriteMaterial({ map: roomNumberTexture });
+      const roomNumberSprite = new THREE.Sprite(roomNumberMaterial);
+      roomNumberSprite.position.set(room.x, height + 2, room.z - room.depth / 2 - 0.5);
+      roomNumberSprite.scale.set(1, 0.5, 1);
+      roomGroup.add(roomNumberSprite);
+      
+      floorGroup.add(roomGroup);
+    });
 
-  return floorGroup;
-};
+    return floorGroup;
+  };
 
 // 创建墙壁
 const createWall = (x, y, z, width, height, depth) => {
@@ -259,13 +267,16 @@ const updateResidentMarkers = () => {
     const markerGroup = new THREE.Group();
 
     // 老人位置（简化为房间中心）
-    const roomX = resident.room_number === '101' ? -3 : 
-                 resident.room_number === '102' ? 3 :
-                 resident.room_number === '103' ? -3 : 3;
-    const roomZ = resident.room_number === '101' ? -3 : 
-                 resident.room_number === '102' ? -3 :
-                 resident.room_number === '103' ? 3 : 3;
-    const height = currentFloor.value;
+    // 获取房间号后两位来确定位置，忽略楼层号前缀
+    const roomSuffix = resident.room_number?.slice(-2) || '01';
+    const roomX = roomSuffix === '01' ? -3 : 
+                 roomSuffix === '02' ? 3 :
+                 roomSuffix === '03' ? -3 : 3;
+    const roomZ = roomSuffix === '01' ? -3 : 
+                 roomSuffix === '02' ? -3 :
+                 roomSuffix === '03' ? 3 : 3;
+    // 根据当前楼层设置高度：1楼height=0，2楼height=2，3楼height=3
+    const height = currentFloor.value === 1 ? 0 : currentFloor.value === 2 ? 2 : 3;
 
     // 标记底座
     const baseGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16);
@@ -311,7 +322,8 @@ const updateResidentMarkers = () => {
 
 // 切换楼层
 const toggleFloor = () => {
-  currentFloor.value = currentFloor.value === 1 ? 3 : 1;
+  // 循环切换楼层：1→2→3→1
+  currentFloor.value = currentFloor.value === 1 ? 2 : currentFloor.value === 2 ? 3 : 1;
   toggleFloorVisibility();
   updateResidentMarkers();
 };
@@ -319,7 +331,7 @@ const toggleFloor = () => {
 // 切换楼层可见性
 const toggleFloorVisibility = () => {
   floors.forEach((floor, index) => {
-    floor.visible = index === (currentFloor.value === 1 ? 0 : 1);
+    floor.visible = index === (currentFloor.value === 1 ? 0 : currentFloor.value === 2 ? 1 : 2);
   });
 };
 

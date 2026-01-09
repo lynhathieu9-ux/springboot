@@ -53,11 +53,11 @@
             <div class="health-brief">
               <div class="health-item">
                 <span class="label">血压</span>
-                <span class="value">{{ patient.latestHealth.bp.systolic }}/{{ patient.latestHealth.bp.diastolic }}</span>
+                <span class="value">{{ patient.latestHealth.bp.systolic.toFixed(0) }}/{{ patient.latestHealth.bp.diastolic.toFixed(0) }}</span>
               </div>
               <div class="health-item">
                 <span class="label">心率</span>
-                <span class="value">{{ patient.latestHealth.hr }}</span>
+                <span class="value">{{ patient.latestHealth.hr.toFixed(0) }}</span>
               </div>
             </div>
           </div>
