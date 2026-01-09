@@ -1,9 +1,5 @@
 <template>
   <div class="elder-service-packages">
-    <div class="page-header">
-      <h2>护理服务订购</h2>
-      <p>查看和订购护理服务套餐</p>
-    </div>
     
     <!-- 服务套餐分类 -->
     <div class="packages-categories-section">
@@ -22,7 +18,9 @@
             @click="selectCategory(category.id)"
             class="category-button"
           >
-            <el-icon :size="20">{{ category.icon }}</el-icon>
+            <el-icon :size="20">
+              <component :is="category.icon" />
+            </el-icon>
             <span>{{ category.name }}</span>
           </el-button>
         </div>
@@ -249,7 +247,12 @@ import {
   Star,
   Ticket,
   Refresh,
-  Close
+  Close,
+  House,
+  MedicineBox,
+  Operation,
+  ChatLineRound,
+  More
 } from '@element-plus/icons-vue'
 
 const activeCategoryId = ref(null)

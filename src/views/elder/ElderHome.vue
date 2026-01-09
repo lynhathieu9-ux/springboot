@@ -55,7 +55,7 @@
         <el-card
           shadow="hover"
           class="feature-card"
-          @click="navigateTo('/elder/nursing')"
+          @click="navigateTo('/elder/nursing/records')"
         >
           <el-icon class="feature-icon"><Bell /></el-icon>
           <h3>护理与服务管理</h3>
@@ -65,7 +65,7 @@
         <el-card
           shadow="hover"
           class="feature-card"
-          @click="navigateTo('/elder/service')"
+          @click="navigateTo('/elder/service/packages')"
         >
           <el-icon class="feature-icon"><ShoppingCart /></el-icon>
           <h3>生活服务管理</h3>

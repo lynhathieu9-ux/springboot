@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  /* ================= 登录 ================= */
+  /* ================= 登录/注册 ================= */
   {
     path: '/',
     redirect: '/login'
@@ -12,96 +12,104 @@ const routes = [
     component: () => import('@/views/Login.vue'),
     meta: { requiresAuth: false }
   },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/Register.vue'),
+    meta: { requiresAuth: false }
+  },
 
   /* ================= 管理端 ================= */
   {
     path: '/',
     component: () => import('@/views/Layout.vue'),
     meta: { requiresAuth: true, role: 'admin' },
-    redirect: '/rooms',
+    redirect: 'rooms',
     children: [
       // 房间/床位管理
       {
-        path: '/rooms',
+        path: 'rooms',
         name: 'RoomList',
         component: () => import('@/views/room/RoomList.vue')
       },
       {
-        path: '/beds/:roomId',
+        path: 'beds/:roomId',
         name: 'BedList',
         component: () => import('@/views/bed/BedList.vue'),
         props: true
       },
-      
+
       // 膳食管理
       {
-        path: '/diet',
+        path: 'diet',
         name: 'DietManagement',
         component: () => import('@/views/diet/DietManagement.vue')
       },
-      
+
       // 档案管理
       {
-        path: '/residents',
+        path: 'residents',
         name: 'ResidentRegistration',
         component: () => import('@/views/resident/ResidentRegistration.vue')
       },
       {
-        path: '/health',
+        path: 'health',
         name: 'HealthRecords',
         component: () => import('@/views/resident/HealthRecords.vue')
       },
+
       {
-        path: '/health-monitoring/daily',
+        path: 'health-monitoring/daily',
         name: 'HealthMonitoringDaily',
         component: () => import('@/views/resident/HealthMonitoring.vue')
       },
       {
-        path: '/health-monitoring/visualization',
+        path: 'health-monitoring/visualization',
         name: 'HealthMonitoringVisualization',
         component: () => import('@/views/HealthMonitoringDashboard.vue')
       },
       {
-        path: '/health-monitoring',
-        redirect: '/health-monitoring/daily'
+        path: 'health-monitoring',
+        redirect: 'health-monitoring/daily'
       },
+
       {
-        path: '/history',
+        path: 'history',
         name: 'ResidentHistory',
         component: () => import('@/views/resident/ResidentHistory.vue')
       },
-      
+
       // 服务管理
       {
-        path: '/service',
+        path: 'service',
         name: 'ServicePackages',
         component: () => import('@/views/service/ServicePackages.vue')
       },
       {
-        path: '/purchase',
+        path: 'purchase',
         name: 'PurchaseRecords',
         component: () => import('@/views/service/PurchaseRecords.vue')
       },
-      
+
       // 护理管理
       {
-        path: '/nursing/levels',
+        path: 'nursing/levels',
         name: 'NursingLevels',
         component: () => import('@/views/nursing/NursingLevels.vue')
       },
       {
-        path: '/nursing/contents',
+        path: 'nursing/contents',
         name: 'NursingContents',
         component: () => import('@/views/nursing/NursingContents.vue')
       },
       {
-        path: '/nursing/records',
+        path: 'nursing/records',
         name: 'NursingRecords',
         component: () => import('@/views/nursing/NursingRecords.vue')
       },
       // 健康监测可视化
       {
-        path: '/monitor',
+        path: 'monitor',
         name: 'Monitor',
         component: () => import('@/views/HealthMonitoringDashboard.vue')
       }
@@ -170,7 +178,7 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login' && token) {
     return userType === 'elder'
       ? next('/elder/home')
-      : next('/rooms')
+      : next('rooms')
   }
 
   // 角色校验

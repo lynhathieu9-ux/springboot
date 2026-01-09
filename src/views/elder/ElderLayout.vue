@@ -4,13 +4,15 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <h2>东软颐养中心</h2>
-        <p>老人服务端</p>
       </div>
 
       <div class="sidebar-menu">
         <el-menu
           :default-active="activeMenu"
-          class="menu"
+          class="el-menu-vertical"
+          background-color="#fff"
+          text-color="#333"
+          active-text-color="#7D9D86"
           router
           @select="handleMenuSelect"
         >
@@ -87,25 +89,29 @@
     <div class="main-content">
       <div class="top-nav">
         <div class="nav-left">
-          <h3>{{ currentPageTitle }}</h3>
         </div>
 
         <div class="nav-right">
-          <el-dropdown>
-            <span class="user-info">
-              <el-avatar size="small">{{ userInitial }}</el-avatar>
-              <span>{{ userName }}</span>
-              <el-icon><ArrowDown /></el-icon>
+          <div class="avatar-container">
+            <span class="user-greeting">
+              {{ timeState }}，{{ userName }}
             </span>
-            <template #dropdown>
+            
+            <el-dropdown class="avatar-wrapper" trigger="click" @command="handleCommand">
+              <div class="avatar-box">
+                <el-avatar size="30" icon="UserFilled" />
+                <el-icon class="el-icon--right"><CaretBottom /></el-icon>
+              </div>
+              <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="handleLogout">
+                <el-dropdown-item command="logout">
                   <el-icon><SwitchButton /></el-icon>
                   退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
-          </el-dropdown>
+            </el-dropdown>
+          </div>
         </div>
       </div>
 
@@ -132,37 +138,44 @@ import {
   ArrowDown,
   SwitchButton,
   Calendar,
-  ChatLineRound
+  ChatLineRound,
+  CaretBottom
 } from '@element-plus/icons-vue'
+
+// 定义当前时间对应的问候语
+const timeState = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '凌晨好'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
+  if (hour < 17) return '下午好'
+  if (hour < 19) return '傍晚好'
+  return '晚上好'
+})
+
+// 获取用户姓名
+const userName = ref('用户')
+
+onMounted(() => {
+  // 1. 尝试获取真实姓名
+  const name = localStorage.getItem('name')
+  // 2. 获取账号（手机号）
+  const username = localStorage.getItem('username')
+  
+  // 3. 优先显示姓名，如果没有姓名才显示手机号
+  // 注意：这里必须保证你在 Login.vue 里存了 'name'
+  userName.value = name && name !== 'null' ? name : (username || '用户')
+})
 
 const router = useRouter()
 const route = useRoute()
 
 const activeMenu = ref('/elder/home')
-const currentPageTitle = ref('首页')
-const userName = ref('用户')
-
 const userInitial = computed(() => userName.value.charAt(0))
 
 const handleMenuSelect = (key) => {
   activeMenu.value = key
-  updatePageTitle(key)
-}
-
-const updatePageTitle = (path) => {
-  const map = {
-    '/elder/home': '首页',
-    '/elder/profile': '个人信息',
-    '/elder/service/packages': '护理服务订购',
-    '/elder/diet-calendar': '膳食日历',
-    '/elder/health-monitoring/daily': '日常健康检测',
-    '/elder/nursing/levels': '护理等级',
-    '/elder/nursing/contents': '护理内容',
-    '/elder/nursing/records': '护理记录',
-    '/elder/service/purchase': '购买记录',
-    '/elder/ai-chat': '智慧助手'
-  }
-  currentPageTitle.value = map[path] || '首页'
 }
 
 const handleLogout = () => {
@@ -170,19 +183,21 @@ const handleLogout = () => {
   router.push('/login')
 }
 
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    handleLogout()
+  }
+}
+
 watch(
   () => route.path,
   (newPath) => {
     activeMenu.value = newPath
-    updatePageTitle(newPath)
   },
   { immediate: true }
 )
 
-onMounted(() => {
-  const name = localStorage.getItem('username')
-  if (name) userName.value = name
-})
+
 </script>
 
 <style scoped>
@@ -226,5 +241,43 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 顶部导航栏样式 */
+.avatar-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  margin-right: 15px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.avatar-wrapper {
+  cursor: pointer;
+}
+
+.avatar-box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.el-icon--right {
+  font-size: 14px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }
 </style>

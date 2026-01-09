@@ -1,215 +1,66 @@
 <template>
   <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
+    <div class="login-left">
+      <img
+        src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1920&auto=format&fit=crop"
+        alt="温馨养老"
+      />
+      <div class="image-overlay">
         <h2>东软颐养中心</h2>
-        <el-tabs v-model="userType" class="login-tabs" style="margin-bottom: 20px;">
-          <el-tab-pane label="管理端" name="admin">
-            <p>管理员登录入口</p>
-          </el-tab-pane>
-          <el-tab-pane label="老人端" name="elder">
-            <p>老人/家属登录入口</p>
-          </el-tab-pane>
-        </el-tabs>
+        <p>专业照护 · 温暖如家 · 安享晚年</p>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="right-content-container">
         
-        <!-- 管理端登录 -->
-        <div v-if="userType === 'admin'">
-          <el-alert
-            title="管理端账号"
-            type="info"
-            :closable="false"
-            show-icon
-            style="margin-bottom: 20px;"
-          >
-            <template #default>
-              <p>用户名: <strong>admin</strong></p>
-              <p>密码: <strong>123456</strong></p>
-            </template>
-          </el-alert>
-          <el-form
-            ref="adminFormRef"
-            :model="adminForm"
-            :rules="adminRules"
-            class="login-form"
-          >
+        <div class="login-header">
+           <el-icon :size="40" color="#7D9D86"><HomeFilled /></el-icon>
+           <span class="app-name">智慧养老</span>
+        </div>
+
+        <div class="form-card">
+          <div class="welcome-text">
+            <h3>欢迎回来</h3>
+            <p>请登录您的账号以继续服务</p>
+          </div>
+
+          <el-form ref="loginFormRef" :model="loginForm" :rules="rules" size="large">
             <el-form-item prop="username">
               <el-input
-                v-model="adminForm.username"
-                placeholder="请输入管理员用户名"
+                v-model="loginForm.username"
+                placeholder="请输入手机号/账号"
                 prefix-icon="User"
-                clearable
-                :class="['input-custom', { 'input-focus': focusAdminUsername }]"
-                @focus="focusAdminUsername = true"
-                @blur="focusAdminUsername = false"
               />
             </el-form-item>
+
             <el-form-item prop="password">
               <el-input
-                v-model="adminForm.password"
-                type="password"
-                placeholder="请输入管理员密码"
-                prefix-icon="Lock"
-                show-password
-                clearable
-                :class="['input-custom', { 'input-focus': focusAdminPassword }]"
-                @focus="focusAdminPassword = true"
-                @blur="focusAdminPassword = false"
-              />
-            </el-form-item>
-            <el-form-item class="form-actions">
-              <el-button
-                type="primary"
-                native-type="submit"
-                @click="handleAdminLogin"
-                :loading="adminLoading"
-                :class="'btn-login'"
-              >
-                {{ adminLoading ? '登录中...' : '登录' }}
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-        
-        <!-- 老人端登录/注册 -->
-        <div v-else>
-          <el-tabs v-model="elderTab" class="login-tabs">
-            <el-tab-pane label="登录" name="elderLogin">
-              <p>请登录您的账号</p>
-            </el-tab-pane>
-            <el-tab-pane label="注册" name="elderRegister">
-              <p>创建新账号</p>
-            </el-tab-pane>
-          </el-tabs>
-          
-          <!-- 老人端登录表单 -->
-          <el-form
-            v-if="elderTab === 'elderLogin'"
-            ref="elderLoginFormRef"
-            :model="elderLoginForm"
-            :rules="elderLoginRules"
-            class="login-form"
-          >
-            <el-form-item prop="phone">
-              <el-input
-                v-model="elderLoginForm.phone"
-                placeholder="请输入手机号"
-                prefix-icon="Phone"
-                clearable
-                :class="['input-custom', { 'input-focus': focusElderPhone }]"
-                @focus="focusElderPhone = true"
-                @blur="focusElderPhone = false"
-              />
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input
-                v-model="elderLoginForm.password"
+                v-model="loginForm.password"
                 type="password"
                 placeholder="请输入密码"
+                show-password
                 prefix-icon="Lock"
-                show-password
-                clearable
-                :class="['input-custom', { 'input-focus': focusElderPassword }]"
-                @focus="focusElderPassword = true"
-                @blur="focusElderPassword = false"
               />
             </el-form-item>
-            <el-form-item class="form-actions">
-              <el-button
-                type="primary"
-                native-type="submit"
-                @click="handleElderLogin"
-                :loading="elderLoading"
-                :class="'btn-login'"
-              >
-                {{ elderLoading ? '登录中...' : '登录' }}
-              </el-button>
-            </el-form-item>
-          </el-form>
-          
-          <!-- 老人端注册表单 -->
-          <el-form
-            v-else
-            ref="elderRegisterFormRef"
-            :model="elderRegisterForm"
-            :rules="elderRegisterRules"
-            class="login-form"
-          >
-            <el-form-item prop="name">
-              <el-input
-                v-model="elderRegisterForm.name"
-                placeholder="请输入真实姓名"
-                prefix-icon="UserFilled"
-                clearable
-                :class="['input-custom', { 'input-focus': focusRegisterName }]"
-                @focus="focusRegisterName = true"
-                @blur="focusRegisterName = false"
-              />
-            </el-form-item>
-            <el-form-item prop="idCard">
-              <el-input
-                v-model="elderRegisterForm.idCard"
-                placeholder="请输入身份证号"
-                prefix-icon="Postcard"
-                clearable
-                :class="['input-custom', { 'input-focus': focusRegisterIdCard }]"
-                @focus="focusRegisterIdCard = true"
-                @blur="focusRegisterIdCard = false"
-              />
-            </el-form-item>
-            <el-form-item prop="phone">
-              <el-input
-                v-model="elderRegisterForm.phone"
-                placeholder="请输入手机号"
-                prefix-icon="Phone"
-                clearable
-                :class="['input-custom', { 'input-focus': focusRegisterPhone }]"
-                @focus="focusRegisterPhone = true"
-                @blur="focusRegisterPhone = false"
-              />
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input
-                v-model="elderRegisterForm.password"
-                type="password"
-                placeholder="请输入密码"
-                prefix-icon="Lock"
-                show-password
-                clearable
-                :class="['input-custom', { 'input-focus': focusRegisterPassword }]"
-                @focus="focusRegisterPassword = true"
-                @blur="focusRegisterPassword = false"
-              />
-            </el-form-item>
-            <el-form-item prop="confirmPassword">
-              <el-input
-                v-model="elderRegisterForm.confirmPassword"
-                type="password"
-                placeholder="请确认密码"
-                prefix-icon="Check"
-                show-password
-                clearable
-                :class="['input-custom', { 'input-focus': focusRegisterConfirmPassword }]"
-                @focus="focusRegisterConfirmPassword = true"
-                @blur="focusRegisterConfirmPassword = false"
-              />
-            </el-form-item>
-            <el-form-item class="form-actions">
-              <el-button
-                type="primary"
-                native-type="submit"
-                @click="handleElderRegister"
-                :loading="registerLoading"
-                :class="'btn-login'"
-              >
-                {{ registerLoading ? '注册中...' : '注册' }}
-              </el-button>
-            </el-form-item>
+
+            <el-button type="primary" class="login-btn" @click="handleLogin" :loading="loading">
+              立即进入
+            </el-button>
+            
+            <div class="form-footer-links">
+                <el-link type="primary" :underline="false" @click="goToRegister">注册家属账号</el-link>
+            </div>
           </el-form>
         </div>
-      </div>
-      
-      <div class="login-footer">
-        <p>技术支持：×××单位</p>
+
+        <div class="login-footer">
+          <p>登录遇到问题？</p>
+          <p class="phone">
+            <el-icon><Phone /></el-icon> 24小时服务热线：400-888-9999
+          </p>
+        </div>
+
       </div>
     </div>
   </div>
@@ -219,320 +70,257 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login, register } from '@/api/auth'
+import { User, Lock, HomeFilled, Phone } from '@element-plus/icons-vue'
+// 假设你有一个封装好的 request 工具，如果没有，请替换为你自己的 axios 调用方式
+import request from '@/utils/request'
 
 const router = useRouter()
+const loading = ref(false)
+const loginFormRef = ref(null)
 
-// 用户类型切换（管理端/老人端）
-const userType = ref('admin')
-
-// 老人端标签页切换（登录/注册）
-const elderTab = ref('elderLogin')
-
-// 管理端登录相关
-const adminFormRef = ref()
-const adminLoading = ref(false)
-const focusAdminUsername = ref(false)
-const focusAdminPassword = ref(false)
-
-const adminForm = reactive({
-  username: 'admin', // 默认填充管理员账号
-  password: '123456' // 默认填充管理员密码
-})
-
-const adminRules = {
-  username: [
-    { required: true, message: '请输入管理员用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入管理员密码', trigger: 'blur' }
-  ]
-}
-
-// 老人端登录相关
-const elderLoginFormRef = ref()
-const elderLoading = ref(false)
-const focusElderPhone = ref(false)
-const focusElderPassword = ref(false)
-
-const elderLoginForm = reactive({
-  phone: '',
+const loginForm = reactive({
+  username: '',
   password: ''
 })
 
-const elderLoginRules = {
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 32, message: '密码长度在 6 到 32 个字符', trigger: 'blur' }
-  ]
-}
-
-// 老人端注册相关
-const elderRegisterFormRef = ref()
-const registerLoading = ref(false)
-const focusRegisterPhone = ref(false)
-const focusRegisterPassword = ref(false)
-const focusRegisterConfirmPassword = ref(false)
-const focusRegisterName = ref(false)
-const focusRegisterIdCard = ref(false)
-
-const elderRegisterForm = reactive({
-  phone: '',
-  password: '',
-  confirmPassword: '',
-  name: '',
-  idCard: ''
-})
-
-const elderRegisterRules = {
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 32, message: '密码长度在 6 到 32 个字符', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
-    {
-      validator: (rule, value, callback) => {
-        if (value !== elderRegisterForm.password) {
-          callback(new Error('两次输入的密码不一致'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    }
-  ],
-  name: [
-    { required: true, message: '请输入真实姓名', trigger: 'blur' }
-  ],
-  idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
-  ]
-}
-
-// 管理端登录
-const handleAdminLogin = async () => {
-  try {
-    await adminFormRef.value.validate()
-    adminLoading.value = true
-    
-    // 登录请求
-    const response = await login({
-      username: adminForm.username,
-      password: adminForm.password
-    })
-    
-    if (response.data.success) {
-      // 保存 token 和用户信息到 localStorage
-      localStorage.setItem('token', response.data.data.token)
-      localStorage.setItem('username', response.data.data.username)
-      localStorage.setItem('role', response.data.data.role || 'admin')
-      localStorage.setItem('userType', response.data.data.role || 'admin')
-      localStorage.setItem('userId', response.data.data.id)
-      
-      ElMessage.success('管理员登录成功')
-      // 跳转到管理端首页（房间管理）
-      router.push('/rooms')
-    } else {
-      ElMessage.error(response.data.message || '登录失败')
-    }
-  } catch (error) {
-      console.error('管理员登录失败:', error)
-      // 尝试从错误响应中获取具体的错误信息
-      let errorMsg = '登录失败，请重试'
-      if (error.response?.data?.message) {
-        errorMsg = error.response.data.message
-      } else if (error.response?.data) {
-        errorMsg = JSON.stringify(error.response.data)
-      } else if (error.message) {
-        errorMsg = error.message
-      }
-      ElMessage.error(errorMsg)
-    } finally {
-      adminLoading.value = false
-    }
-}
-
-// 老人端登录
-const handleElderLogin = async () => {
-  try {
-    await elderLoginFormRef.value.validate()
-    elderLoading.value = true
-    
-    // 登录请求（使用手机号作为用户名）
-    const response = await login({
-      username: elderLoginForm.phone,
-      password: elderLoginForm.password
-    })
-    
-    if (response.data.success) {
-      // 保存 token 和用户信息到 localStorage
-      localStorage.setItem('token', response.data.data.token)
-      localStorage.setItem('username', response.data.data.username)
-      localStorage.setItem('role', response.data.data.role || 'elder')
-      localStorage.setItem('userType', response.data.data.role || 'elder')
-      localStorage.setItem('userId', response.data.data.id)
-      localStorage.setItem('phone', elderLoginForm.phone)
-      
-      ElMessage.success('登录成功')
-      // 跳转到老人端首页
-      router.push('/elder/home')
-    } else {
-      ElMessage.error(response.data.message || '登录失败')
-    }
-  } catch (error) {
-      console.error('老人端登录失败:', error)
-      // 尝试从错误响应中获取具体的错误信息
-      let errorMsg = '登录失败，请重试'
-      if (error.response?.data?.message) {
-        errorMsg = error.response.data.message
-      } else if (error.response?.data) {
-        errorMsg = JSON.stringify(error.response.data)
-      } else if (error.message) {
-        errorMsg = error.message
-      }
-      ElMessage.error(errorMsg)
-    } finally {
-      elderLoading.value = false
-    }
-}
-
-// 老人端注册
-const handleElderRegister = async () => {
-  try {
-    await elderRegisterFormRef.value.validate()
-    registerLoading.value = true
-    
-    // 注册请求（使用手机号作为用户名）
-    const response = await register({
-      username: elderRegisterForm.phone,
-      password: elderRegisterForm.password,
-      realName: elderRegisterForm.name,
-      idCard: elderRegisterForm.idCard,
-      phone: elderRegisterForm.phone,
-      role: 'elder'
-    })
-    
-    if (response.data.success) {
-      // 存储注册信息到localStorage
-      localStorage.setItem('elderName', elderRegisterForm.name)
-      localStorage.setItem('elderIdCard', elderRegisterForm.idCard)
-      localStorage.setItem('elderPhone', elderRegisterForm.phone)
-      
-      ElMessage.success('注册成功，请登录')
-      // 切换到登录标签页
-      elderTab.value = 'elderLogin'
-      // 清空注册表单
-      Object.assign(elderRegisterForm, {
-        phone: '',
-        password: '',
-        confirmPassword: ''
-      })
-    } else {
-      ElMessage.error(response.data.message || '注册失败')
-    }
-  } catch (error) {
-    console.error('老人端注册失败:', error)
-    ElMessage.error(error.response?.data?.message || '注册失败，请重试')
-  } finally {
-    registerLoading.value = false
+// 自定义校验规则
+const validateAccount = (rule, value, callback) => {
+  if (!value) {
+    return callback(new Error('请输入账号'))
   }
+  const isPhone = /^1[3-9]\d{9}$/.test(value)
+  if (value === 'admin' || isPhone) {
+    callback()
+  } else {
+    callback(new Error('请输入正确的手机号或admin'))
+  }
+}
+
+const rules = {
+  username: [{ validator: validateAccount, trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+}
+
+const handleLogin = () => {
+  loginFormRef.value.validate((valid) => {
+    if (valid) {
+      loading.value = true
+      // 发送登录请求
+      request.post('/auth/login', loginForm).then(res => {
+        if (res.data && res.data.success) {
+          ElMessage.success('登录成功')
+          
+          // 存储 Token 和用户信息
+          localStorage.setItem('token', res.data.data.token)
+          localStorage.setItem('username', res.data.data.username)
+          localStorage.setItem('name', res.data.data.name || '')
+          localStorage.setItem('role', res.data.data.role || 'admin')
+          localStorage.setItem('userType', res.data.data.role || 'admin')
+          localStorage.setItem('userId', res.data.data.id || '')
+
+          // 核心逻辑：根据角色跳转
+          const role = res.data.data.role || 'admin'
+          if (role === 'admin') {
+            router.push('/rooms') // 管理端路径
+          } else if (role === 'elder') {
+            router.push('/elder/home')      // 老人端路径
+          } else {
+            // 默认跳转
+            router.push('/')
+          }
+        } else {
+          ElMessage.error(res.msg || '登录失败')
+        }
+      }).catch(err => {
+        console.error('登录失败:', err)
+        // 尝试从错误响应中获取具体的错误信息
+        let errorMsg = '登录失败，请重试'
+        if (err.response?.data?.message) {
+          errorMsg = err.response.data.message
+        } else if (err.response?.data?.msg) {
+          errorMsg = err.response.data.msg
+        } else if (err.response?.data?.success === false && err.response?.data?.message) {
+          errorMsg = err.response.data.message
+        } else if (err.response?.data) {
+          errorMsg = JSON.stringify(err.response.data)
+        } else if (err.message) {
+          errorMsg = err.message
+        }
+        ElMessage.error(errorMsg)
+      }).finally(() => {
+        loading.value = false
+      })
+    }
+  })
+}
+
+// 跳转到注册页面
+const goToRegister = () => {
+  // 修改为：跳转到路由配置好的 /register 路径
+  router.push('/register')
 }
 </script>
 
 <style scoped>
 .login-container {
   display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* 左侧样式 */
+.login-left {
+  flex: 1.5; /* 占比 60% */
+  position: relative;
+  background-color: #f0f0f0;
+}
+
+.login-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 10%;
+  left: 10%;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.image-overlay h2 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  font-weight: 300;
+}
+
+.image-overlay p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* 右侧整体布局：改为 Flex 列布局，撑满高度 */
+.login-right {
+  flex: 1; /* 占比 40% */
+  background-color: #FAF9F6; /* 米色背景 */
+  display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: var(--bg-primary);
-  padding: 20px;
+  position: relative; /* 为绝对定位做准备 */
 }
 
-.login-card {
+.right-content-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* 1. 顶部 Header 样式 */
+.login-header {
+  position: absolute;
+  top: 40px;
+  right: 40px; /* 放在右上角，或者居中都可以 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.8;
+}
+
+.app-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #5a5a5a;
+  letter-spacing: 1px;
+}
+
+/* 2. 中间卡片样式 (核心修改) */
+.form-card {
   width: 100%;
   max-width: 420px;
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  padding: 40px 32px;
+  background: #FFFFFF; /* 纯白背景 */
+  padding: 50px 40px;
+  border-radius: 20px; /* 大圆角 */
+  /* 柔和的投影，制造悬浮感 */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 32px;
+.welcome-text {
+  text-align: center; /* 居中对齐 */
+  margin-bottom: 30px;
 }
 
-.login-header h2 {
-  font-size: 20px;
+.welcome-text h3 {
+  font-size: 26px; /* 字号加大 */
+  color: #333;
+  margin-bottom: 8px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 16px 0;
 }
 
-.login-header p {
+.welcome-text p {
+  color: #999;
   font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
-.login-tabs {
-  margin-top: 16px;
+.form-footer-links {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    padding: 0 5px;
 }
 
-.login-tabs .el-tabs__nav {
+/* 3. 底部 Footer 样式 */
+.login-footer {
+  position: absolute;
+  bottom: 30px;
+  text-align: center;
+  color: #909399;
+  font-size: 13px;
+}
+
+.login-footer .phone {
+  color: #7D9D86; /* 使用主色调 */
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   justify-content: center;
 }
 
-.login-tabs .el-tabs__tab {
-  font-size: 16px;
-  padding: 10px 24px;
+/* 覆盖 Element UI 默认样式，使其更温馨 */
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  background-color: #F0F0F0; /* 浅灰底色 */
+  box-shadow: none;
+  padding: 10px 15px;
 }
 
-.login-tabs .el-tabs__active-bar {
-  height: 3px;
-  background-color: var(--primary-color);
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #7D9D86; /* 聚焦时的莫兰迪绿 */
 }
 
-.login-tabs .el-tabs__tab.is-active {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.login-form {
+.login-btn {
   width: 100%;
-}
-
-.form-actions {
-  margin-bottom: 24px;
-}
-
-.btn-login {
-  width: 100%;
-  height: 40px;
+  margin-top: 20px;
+  height: 50px;
   font-size: 16px;
-  font-weight: 500;
-  border-radius: var(--border-radius);
-  transition: all 0.2s ease;
+  border-radius: 8px;
+  background-color: #7D9D86; /* 主色调：莫兰迪绿 */
+  border-color: #7D9D86;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
-.login-footer {
-  text-align: center;
-}
-
-.login-footer p {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
+.login-btn:hover {
+  background-color: #6C8A75;
+  border-color: #6C8A75;
 }
 </style>
